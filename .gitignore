@@ -1,0 +1,122 @@
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/misc.xml
+.idea/deploymentTargetDropDown.xml
+.idea/apollo.xml
+.idea/graphql-settings.xml
+.idea/androidTestResultsUserPreferences.xml
+.idea/assetWizardSettings.xml
+
+# Sensitive or high-churn files
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+.idea/**/dbnavigator.xml
+
+# Explicit IDE excludes
+!/.idea/codeStyles/*
+!/.idea/inspectionProfiles/*
+!/.idea/fileTemplates
+!/.idea/file.template.settings.xml
+!/.idea/scopes
+
+# Gradle
+.gradle/
+build/
+.idea/**/gradle.xml
+.idea/**/libraries
+.gradle
+/*/build/
+**/build/
+!/**/src/**/build/
+/local.properties
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Avoid ignore Gradle wrappper properties
+!gradle-wrapper.properties
+
+# Cache of project
+.gradletasknamecache
+
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+
+# Crashlytics plugin (for Android Studio and IntelliJ)
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log/OS Files
+*.log
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
+*.ap_
+
+# class / dex files
+*.dex
+*.class
+
+# generated files
+bin/
+gen/
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google Services (e.g. APIs or Firebase)
+firebase_appdistribution_credentials.json
+.signing/
+
+# Android Screenshots and Profiling
+*.hprof
+/captures
+/device-*.png
+/device-*.mp4
+/Screenshot_*.png
+
+# Temp files
+*.swp
+*.tmp
+*.lck
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+*.iml
+/out
+.cxx
+*.xcuserstate
+*.xcbkptlist
+
+testReleaseUnitTest.*
+**/out/failures
+
+reports
