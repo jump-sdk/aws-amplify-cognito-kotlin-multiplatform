@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: ["Lint and Test"]
     types: [completed]
-    branches: [master]
+    branches: [main]
 
 jobs:
   build:
@@ -23,6 +23,6 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Publish packages
-        run: ./gradlew :core-kmm:publish :securewidgets-compose:publish
+        run: ./gradlew :amplifyframework:publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
