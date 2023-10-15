@@ -57,7 +57,7 @@ class SRPHelper(private val password: String) {
     private val k: BigInteger
     private var privateA: BigInteger
     private var publicA: ModularBigInteger
-    var dateString: String = nowAsFormattedString()
+    var timestamp: String = nowAsFormattedString()
         internal set
 
     private val digest = SHA256()
@@ -155,7 +155,7 @@ class SRPHelper(private val password: String) {
         mac.update(userPoolName.toByteArray())
         mac.update(userId.toByteArray())
         mac.update(Base64.decode(secretBlock))
-        return mac.doFinal(dateString.toByteArray())
+        return mac.doFinal(timestamp.toByteArray())
     }
 
     @Throws(CognitoException::class)

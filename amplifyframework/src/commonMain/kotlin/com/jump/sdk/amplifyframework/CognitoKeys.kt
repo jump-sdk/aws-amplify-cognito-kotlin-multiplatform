@@ -16,16 +16,18 @@ package com.jump.sdk.amplifyframework
  */
 
 object CognitoKeys {
+    const val CHALLENGE_NAME = "CHALLENGE_NAME"
+    const val DEVICE_KEY = "DEVICE_KEY"
     const val PASSWORD_CLAIM_SECRET_BLOCK = "PASSWORD_CLAIM_SECRET_BLOCK"
     const val PASSWORD_CLAIM_SIGNATURE = "PASSWORD_CLAIM_SIGNATURE"
-    const val TIMESTAMP = "TIMESTAMP"
+    const val PASSWORD_VERIFIER = "PASSWORD_VERIFIER"
     const val SALT = "SALT"
     const val SECRET_BLOCK = "SECRET_BLOCK"
+    const val SECRET_HASH = "SECRET_HASH"
     const val SRP_A = "SRP_A"
     const val SRP_B = "SRP_B"
-    const val USER_ID_FOR_SRP = "USER_ID_FOR_SRP"
-    const val SECRET_HASH = "SECRET_HASH"
+    const val TIMESTAMP = "TIMESTAMP"
     const val USERNAME = "USERNAME"
-    const val DEVICE_KEY = "DEVICE_KEY"
-    const val CHALLENGE_NAME = "CHALLENGE_NAME"
+    const val USER_ID_FOR_SRP = "USER_ID_FOR_SRP"
+    const val USER_SRP_AUTH = "USER_SRP_AUTH"
 }

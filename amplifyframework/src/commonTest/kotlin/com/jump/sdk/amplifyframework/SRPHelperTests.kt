@@ -156,7 +156,7 @@ class SRPHelperTests {
 
     @Test
     fun testGenerateM1() {
-        helper.dateString = "Wed Sep 29 06:40:48 UTC 2021"
+        helper.timestamp = "Wed Sep 29 06:40:48 UTC 2021"
         val m1Actual = helper.generateM1Signature(keyExpected.toByteArray(), secretBlock)
         assertEquals(m1Expected, Base64.encode(m1Actual))
     }

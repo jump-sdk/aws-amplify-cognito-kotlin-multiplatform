@@ -26,9 +26,7 @@ val DayOfWeek.shortName: String
         DayOfWeek.FRIDAY -> "Fri"
         DayOfWeek.SATURDAY -> "Sat"
         DayOfWeek.SUNDAY -> "Sun"
-        else -> {
-            throw IllegalArgumentException("Unknown day of week: $this")
-        }
+        else -> throw IllegalArgumentException("Unknown day of week: $this")
     }
 
 val Month.shortName: String
@@ -45,7 +43,5 @@ val Month.shortName: String
         Month.OCTOBER -> "Oct"
         Month.NOVEMBER -> "Nov"
         Month.DECEMBER -> "Dec"
-        else -> {
-            throw IllegalArgumentException("Unknown month: $this")
-        }
+        else -> throw IllegalArgumentException("Unknown month: $this")
     }
