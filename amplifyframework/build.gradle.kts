@@ -75,7 +75,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/jump-sdk/mobile-sdk-android")
+            url = uri("https://maven.pkg.github.com/jump-sdk/aws-amplify-cognito-kotlin-multiplatform")
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
