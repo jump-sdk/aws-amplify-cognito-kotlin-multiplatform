@@ -57,7 +57,8 @@ class SRPHelper(private val password: String) {
     private val k: BigInteger
     private var privateA: BigInteger
     private var publicA: ModularBigInteger
-    internal var dateString: String = nowAsFormattedString()
+    var dateString: String = nowAsFormattedString()
+        internal set
 
     private val digest = SHA256()
 
