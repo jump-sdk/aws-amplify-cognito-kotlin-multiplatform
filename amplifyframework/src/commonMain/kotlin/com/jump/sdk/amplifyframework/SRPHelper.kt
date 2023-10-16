@@ -76,11 +76,11 @@ class SRPHelper(private val password: String) {
         k = BigInteger.fromByteArray(digest.digest(g.toByteArray()), Sign.POSITIVE)
     }
 
-    private var userId: String = ""
-    private var userPoolName: String = ""
+    private var userId: String? = null
+    private var userPoolName: String? = null
 
-    fun setUserPoolParams(userId: String, userPoolName: String) {
-        this.userId = userId
+    fun setUserPoolParams(userIdForSrp: String, userPoolName: String) {
+        this.userId = userIdForSrp
         this.userPoolName = userPoolName
         if (userPoolName.contains("_")) {
             this.userPoolName = userPoolName.split(Regex("_"), 2)[1]
@@ -106,10 +106,11 @@ class SRPHelper(private val password: String) {
     }
 
     // x = H(salt | H(poolName | userId | ":" | password))
+    @Throws(CognitoException::class)
     internal fun computeX(salt: BigInteger): BigInteger {
         digest.reset()
-        digest.update(userPoolName.toByteArray())
-        digest.update(userId.toByteArray())
+        digest.update(userPoolName?.toByteArray() ?: throw CognitoException.UserPoolNameNotSet)
+        digest.update(userId?.toByteArray() ?: throw CognitoException.UserIdNotSet)
         digest.update(":".toByteArray())
         val userIdPasswordHash = digest.digest(password.toByteArray())
 
@@ -119,6 +120,7 @@ class SRPHelper(private val password: String) {
     }
 
     // verifier = (g ^ x) % N
+    @Throws(CognitoException::class)
     internal fun computePasswordVerifier(salt: BigInteger): ModularBigInteger {
         val xValue = computeX(salt)
         return g.pow(xValue)
@@ -150,14 +152,32 @@ class SRPHelper(private val password: String) {
     }
 
     // M1 = MAC(poolId | userId | secret | timestamp, key)
+    @Throws(CognitoException::class)
     internal fun generateM1Signature(key: ByteArray, secretBlock: String): ByteArray {
         val mac = HmacSHA256(key)
-        mac.update(userPoolName.toByteArray())
-        mac.update(userId.toByteArray())
+        mac.update(userPoolName?.toByteArray() ?: throw CognitoException.UserPoolNameNotSet)
+        mac.update(userId?.toByteArray() ?: throw CognitoException.UserIdNotSet)
         mac.update(Base64.decode(secretBlock))
         return mac.doFinal(timestamp.toByteArray())
     }
 
+    /**
+     * Generates a PASSWORD_CLAIM_SIGNATURE for Amplify Cognito authentication.
+     *
+     * This function calculates the PASSWORD_CLAIM_SIGNATURE, which is used in the authentication
+     * process with Amazon Cognito Identity Provider. It combines the provided salt, SRP_B value,
+     * and secret block to create a secure signature for authentication.
+     *
+     * The parameters are returned from calling AWSCognitoIdentityProviderService.InitiateAuth
+     * Note the you MUST call setUserPoolParams() before calling this function or it will throw
+     * a CognitoException.
+     *
+     * @param salt The salt value used in the authentication process.
+     * @param srpB The SRP_B value provided by the Cognito service.
+     * @param secretBlock The secret block - should be passed into PASSWORD_CLAIM_SECRET_BLOCK
+     * for the subsequent call to AWSCognitoIdentityProviderService.RespondToAuthChallenge
+     * @return A string representing the PASSWORD_CLAIM_SIGNATURE for authentication.
+     */
     @Throws(CognitoException::class)
     fun getSignature(salt: String, srpB: String, secretBlock: String): String {
         val bigIntSRPB = BigInteger.parseString(srpB, HEX)
