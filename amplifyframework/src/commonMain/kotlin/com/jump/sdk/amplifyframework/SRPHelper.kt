@@ -169,8 +169,8 @@ class SRPHelper(private val password: String) {
      * and secret block to create a secure signature for authentication.
      *
      * The parameters are returned from calling AWSCognitoIdentityProviderService.InitiateAuth
-     * Note the you MUST call setUserPoolParams() before calling this function or it will throw
-     * a CognitoException.
+     * Note that you MUST call setUserPoolParams() before calling this function or it will throw
+     * a [CognitoException].
      *
      * @param salt The salt value used in the authentication process.
      * @param srpB The SRP_B value provided by the Cognito service.
