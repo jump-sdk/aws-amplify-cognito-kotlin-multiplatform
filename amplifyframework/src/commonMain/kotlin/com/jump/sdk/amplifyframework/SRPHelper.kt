@@ -33,6 +33,7 @@ private const val EPHEMERAL_KEY_LENGTH = 1024
 private const val HEX = 16
 private const val DERIVED_KEY_INFO = "Caldera Derived Key"
 private const val DERIVED_KEY_SIZE = 16
+private const val SRP_A_GEN_WAIT = 50L
 
 // Precomputed safe 3072-bit prime 'N', as decimal.
 // https://datatracker.ietf.org/doc/html/rfc5054#appendix-A (Page 16)
@@ -59,21 +60,23 @@ private enum class SrpGenerationState { NOT_STARTED, STARTED, COMPLETED }
 class SRPHelper(userPool: String) {
     @Suppress("VariableNaming")
     private val N = BigInteger.fromTwosComplementByteArray(nByteArray)
-
     private val creator = ModularBigInteger.creatorForModulo(N)
     private val g = creator.fromInt(2)
-
     private val random = SecureRandom()
-
     private val k: BigInteger = BigInteger.fromTwosComplementByteArray(kByteArray)
-    private var srpState: SrpGenerationState = SrpGenerationState.NOT_STARTED
-    private lateinit var privateA: BigInteger
-    private lateinit var publicA: ModularBigInteger
-    var timestamp: String = nowAsFormattedString()
-        internal set
-
     private val digest = SHA256()
     private val userPoolName: String
+
+    private var srpState: SrpGenerationState = SrpGenerationState.NOT_STARTED
+
+    @Suppress("LateinitUsage")
+    private lateinit var privateA: BigInteger
+
+    @Suppress("LateinitUsage")
+    private lateinit var publicA: ModularBigInteger
+
+    var timestamp: String = nowAsFormattedString()
+        internal set
 
     init {
         if (userPool.contains("_")) {
@@ -97,11 +100,12 @@ class SRPHelper(userPool: String) {
                     // A = (g ^ a) % N
                     publicA = g.pow(privateA)
                 } while (publicA.residue == BigInteger.ZERO)
+                srpState = SrpGenerationState.COMPLETED
                 publicA.toString(HEX)
             }
 
             SrpGenerationState.STARTED -> {
-                do { delay(10) } while (srpState != SrpGenerationState.COMPLETED)
+                do { delay(SRP_A_GEN_WAIT) } while (srpState != SrpGenerationState.COMPLETED)
                 publicA.toString(HEX)
             }
             SrpGenerationState.COMPLETED -> publicA.toString(HEX)
@@ -214,21 +218,21 @@ class SRPHelper(userPool: String) {
         userIdForSrp: String,
         password: String,
     ): String {
-        val bigIntSRPB = BigInteger.parseString(srpB, HEX)
+        val bigIntSrpB = BigInteger.parseString(srpB, HEX)
         val bigIntSalt = BigInteger.parseString(salt, HEX)
 
         // Check B's validity
-        if (bigIntSRPB.mod(N) == BigInteger.ZERO) {
+        if (bigIntSrpB.mod(N) == BigInteger.ZERO) {
             throw CognitoException.BadSrpB
         }
 
-        val uValue = computeU(bigIntSRPB)
+        val uValue = computeU(bigIntSrpB)
         if (uValue.mod(N) == BigInteger.ZERO) {
             throw CognitoException.HashOfAAndSrpBCannotBeZero
         }
 
         val xValue = computeX(salt = bigIntSalt, userIdForSrp = userIdForSrp, password = password)
-        val sValue = computeS(uValue, xValue, bigIntSRPB)
+        val sValue = computeS(uValue, xValue, bigIntSrpB)
         val key = computePasswordAuthenticationKey(sValue, uValue)
         val m1Signature = generateM1Signature(
             key = key,
