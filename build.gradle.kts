@@ -1,7 +1,8 @@
 plugins {
-    id("com.android.library").version("8.2.0-beta06").apply(false)
+    id("com.android.library").version("8.2.0-rc01").apply(false)
     kotlin("multiplatform").version("1.9.10").apply(false)
     id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    id("com.github.ben-manes.versions") version "0.49.0"
 }
 
 tasks.register("clean", Delete::class) {

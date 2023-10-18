@@ -23,6 +23,7 @@ import io.ktor.utils.io.core.toByteArray
 import org.kotlincrypto.SecureRandom
 import org.kotlincrypto.hash.sha2.SHA256
 import org.kotlincrypto.macs.hmac.sha2.HmacSHA256
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -45,7 +46,7 @@ private const val HEX_N =
 
 @OptIn(ExperimentalEncodingApi::class)
 @Suppress("TooManyFunctions")
-class SRPHelper(private val password: String) {
+class SRPHelper(private val password: String, userPoolName: String) {
     @Suppress("VariableNaming")
     private val N = BigInteger.parseString(HEX_N, 16)
 
@@ -61,8 +62,16 @@ class SRPHelper(private val password: String) {
         internal set
 
     private val digest = SHA256()
+    var userIdForSrp: String? = null
+    private val userPoolName: String
 
     init {
+        if (userPoolName.contains("_")) {
+            this.userPoolName = userPoolName.split(Regex("_"), 2)[1]
+        } else {
+            this.userPoolName = userPoolName
+        }
+
         // Generate client private 'a' and public 'A' values
         do {
             privateA = BigInteger.fromByteArray(random.nextBytesOf(EPHEMERAL_KEY_LENGTH), Sign.POSITIVE).mod(N)
@@ -74,17 +83,6 @@ class SRPHelper(private val password: String) {
         digest.reset()
         digest.update(N.toTwosComplementByteArray())
         k = BigInteger.fromByteArray(digest.digest(g.toByteArray()), Sign.POSITIVE)
-    }
-
-    private var userId: String? = null
-    private var userPoolName: String? = null
-
-    fun setUserPoolParams(userIdForSrp: String, userPoolName: String) {
-        this.userId = userIdForSrp
-        this.userPoolName = userPoolName
-        if (userPoolName.contains("_")) {
-            this.userPoolName = userPoolName.split(Regex("_"), 2)[1]
-        }
     }
 
     // @TestOnly
@@ -109,8 +107,8 @@ class SRPHelper(private val password: String) {
     @Throws(CognitoException::class)
     internal fun computeX(salt: BigInteger): BigInteger {
         digest.reset()
-        digest.update(userPoolName?.toByteArray() ?: throw CognitoException.UserPoolNameNotSet)
-        digest.update(userId?.toByteArray() ?: throw CognitoException.UserIdNotSet)
+        digest.update(userPoolName.toByteArray())
+        digest.update(userIdForSrp?.toByteArray() ?: throw CognitoException.UserIdNotSet)
         digest.update(":".toByteArray())
         val userIdPasswordHash = digest.digest(password.toByteArray())
 
@@ -155,8 +153,8 @@ class SRPHelper(private val password: String) {
     @Throws(CognitoException::class)
     internal fun generateM1Signature(key: ByteArray, secretBlock: String): ByteArray {
         val mac = HmacSHA256(key)
-        mac.update(userPoolName?.toByteArray() ?: throw CognitoException.UserPoolNameNotSet)
-        mac.update(userId?.toByteArray() ?: throw CognitoException.UserIdNotSet)
+        mac.update(userPoolName.toByteArray())
+        mac.update(userIdForSrp?.toByteArray() ?: throw CognitoException.UserIdNotSet)
         mac.update(Base64.decode(secretBlock))
         return mac.doFinal(timestamp.toByteArray())
     }
@@ -178,8 +176,8 @@ class SRPHelper(private val password: String) {
      * for the subsequent call to AWSCognitoIdentityProviderService.RespondToAuthChallenge
      * @return A string representing the PASSWORD_CLAIM_SIGNATURE for authentication.
      */
-    @Throws(CognitoException::class)
-    fun getSignature(salt: String, srpB: String, secretBlock: String): String {
+    @Throws(CognitoException::class, CancellationException::class)
+    suspend fun getSignature(salt: String, srpB: String, secretBlock: String): String {
         val bigIntSRPB = BigInteger.parseString(srpB, HEX)
         val bigIntSalt = BigInteger.parseString(salt, HEX)
 
