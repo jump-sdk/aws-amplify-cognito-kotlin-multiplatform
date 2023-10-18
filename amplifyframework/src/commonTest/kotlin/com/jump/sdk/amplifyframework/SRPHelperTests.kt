@@ -16,7 +16,6 @@
 package com.jump.sdk.amplifyframework
 
 import com.ionspin.kotlin.bignum.integer.BigInteger
-import com.ionspin.kotlin.bignum.modular.ModularBigInteger
 import io.ktor.utils.io.core.toByteArray
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -105,30 +104,20 @@ class SRPHelperTests {
 
     @BeforeTest
     fun setUp() {
-        helper = SRPHelper("Password123")
+        helper = SRPHelper(password = "Password123", userPoolName = "us-east-2_KO6fcefgd")
         helper.setAValues(privateA, publicA)
-        helper.setUserPoolParams("username", "us-east-2_KO6fcefgd")
+        helper.userIdForSrp = "username"
     }
 
     @Test
     fun testValidPublicA() {
-        val testHelper = SRPHelper("")
+        val testHelper = SRPHelper(password = "Password123", userPoolName = "us-east-2_KO6fcefgd")
         val bigA = BigInteger.parseString(testHelper.getPublicA(), 16)
         assertNotEquals(BigInteger.ZERO, testHelper.modN(bigA))
     }
 
     @Test
     fun testComputeU() {
-        println(publicA)
-        println(publicA.toModularBigInteger(BigInteger(10)).toBigInteger())
-        println(publicA.toModularBigInteger(BigInteger(10)).toStringWithModulo())
-
-        val creator = ModularBigInteger.creatorForModulo(100)
-        val modularBigInteger = creator.fromLong(555)
-        println("ModularBigInteger: ${modularBigInteger.residue}")
-        println("ModularBigInteger: ${modularBigInteger.toBigInteger()}")
-        println("ModularBigInteger: ${modularBigInteger.toStringWithModulo()}")
-
         val uActual = helper.computeU(srpB)
         assertEquals(uExpected, uActual)
     }
