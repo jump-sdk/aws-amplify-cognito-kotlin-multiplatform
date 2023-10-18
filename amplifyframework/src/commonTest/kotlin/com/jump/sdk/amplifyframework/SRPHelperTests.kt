@@ -23,6 +23,7 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
+import kotlinx.coroutines.runBlocking
 
 
 @OptIn(ExperimentalEncodingApi::class)
@@ -101,18 +102,20 @@ class SRPHelperTests {
     private val m1Expected = "QG7a57h+ndPBVasvx/OkmsJdy5uoMEVRshboEd4S+j8="
 
     private lateinit var helper: SRPHelper
+    private val password = "Password123"
+    private val userIdForSrp = "username"
 
     @BeforeTest
     fun setUp() {
-        helper = SRPHelper(password = "Password123", userPoolName = "us-east-2_KO6fcefgd")
+        helper = SRPHelper(userPool = "us-east-2_KO6fcefgd")
         helper.setAValues(privateA, publicA)
-        helper.userIdForSrp = "username"
     }
 
     @Test
     fun testValidPublicA() {
-        val testHelper = SRPHelper(password = "Password123", userPoolName = "us-east-2_KO6fcefgd")
-        val bigA = BigInteger.parseString(testHelper.getPublicA(), 16)
+        val testHelper = SRPHelper(userPool = "us-east-2_KO6fcefgd")
+        val publicA = runBlocking { testHelper.getPublicA() }
+        val bigA = BigInteger.parseString(publicA, 16)
         assertNotEquals(BigInteger.ZERO, testHelper.modN(bigA))
     }
 
@@ -126,7 +129,7 @@ class SRPHelperTests {
     fun testComputeX() {
         val salt = BigInteger.parseString("e7dc204cebbfda6b62b8493e932f7f4c", 16)
         println(salt)
-        val xActual = helper.computeX(salt)
+        val xActual = helper.computeX(salt = salt, userIdForSrp = userIdForSrp, password = password)
         println(xActual)
         assertEquals(xExpected, xActual)
     }
@@ -146,7 +149,11 @@ class SRPHelperTests {
     @Test
     fun testGenerateM1() {
         helper.timestamp = "Wed Sep 29 06:40:48 UTC 2021"
-        val m1Actual = helper.generateM1Signature(keyExpected.toByteArray(), secretBlock)
+        val m1Actual = helper.generateM1Signature(
+            key = keyExpected.toByteArray(),
+            secretBlock = secretBlock,
+            userIdForSrp = userIdForSrp,
+        )
         assertEquals(m1Expected, Base64.encode(m1Actual))
     }
 }
