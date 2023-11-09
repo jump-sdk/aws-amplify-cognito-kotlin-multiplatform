@@ -1,7 +1,7 @@
 plugins {
-    id("com.android.library").version("8.2.0-rc01").apply(false)
-    kotlin("multiplatform").version("1.9.10").apply(false)
-    id("io.gitlab.arturbosch.detekt") version "1.23.1"
+    id("com.android.library").version("8.2.0-rc02").apply(false)
+    kotlin("multiplatform").version("1.9.20").apply(false)
+    id("io.gitlab.arturbosch.detekt") version "1.23.3"
     id("com.github.ben-manes.versions") version "0.49.0"
 }
 
@@ -22,6 +22,7 @@ allprojects {
     }
     apply(plugin = "io.gitlab.arturbosch.detekt")
     detekt {
+        allRules = true
         config.setFrom(files(rootProject.file("detekt.yml")))
         reports {
             xml.required.set(true)
@@ -32,7 +33,7 @@ allprojects {
         }
     }
     dependencies {
-        val detektVersion = "1.23.1"
+        val detektVersion = "1.23.3"
         detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
         detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
         detektPlugins("com.braisgabin.detekt:kotlin-compiler-wrapper:0.0.4")

@@ -6,5 +6,6 @@ enum class CognitoAction(val headerValue: String) {
     FORGOT_PASSWORD("AWSCognitoIdentityProviderService.ForgotPassword"),
     INITIATE_AUTH("AWSCognitoIdentityProviderService.InitiateAuth"),
     RESPOND_TO_AUTH_CHALLENGE("AWSCognitoIdentityProviderService.RespondToAuthChallenge"),
+    RESEND_CONFIRMATION_CODE("AWSCognitoIdentityProviderService.ResendConfirmationCode"),
     SIGN_UP("AWSCognitoIdentityProviderService.SignUp"),
 }

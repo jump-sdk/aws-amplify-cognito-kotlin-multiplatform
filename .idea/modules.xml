@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/amplifyframework/AWS_Amplify_Cognito_Multiplatform.amplifyframework.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/amplifyframework/AWS_Amplify_Cognito_Multiplatform.amplifyframework.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/amplifyframework/AWS_Amplify_Cognito_Multiplatform.amplifyframework.main.iml" filepath="$PROJECT_DIR$/.idea/modules/amplifyframework/AWS_Amplify_Cognito_Multiplatform.amplifyframework.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/amplifyframework/AWS_Amplify_Cognito_Multiplatform.amplifyframework.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/amplifyframework/AWS_Amplify_Cognito_Multiplatform.amplifyframework.unitTest.iml" />
+    </modules>
+  </component>
+</project>

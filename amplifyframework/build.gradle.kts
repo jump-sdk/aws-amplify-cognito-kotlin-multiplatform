@@ -1,3 +1,5 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
@@ -9,14 +11,14 @@ version = System.getenv()["GITHUB_RUN_NUMBER"] ?: "1"
 
 @OptIn(org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi::class)
 kotlin {
-    targetHierarchy.default()
+    applyDefaultHierarchyTemplate()
     androidTarget {
         publishLibraryVariants("release")
     }
     listOf(
         iosX64(),
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
             baseName = "amplifyframework"
@@ -34,7 +36,7 @@ kotlin {
                 implementation(platform("org.kotlincrypto.hash:bom:0.3.0"))
                 implementation("org.kotlincrypto.hash:sha2")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
-                implementation("io.ktor:ktor-client-core:2.3.5")
+                implementation("io.ktor:ktor-client-core:2.3.6")
             }
         }
         val commonTest by getting {
@@ -80,6 +82,21 @@ publishing {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
             }
+        }
+    }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile> {
+    kotlinOptions {
+        freeCompilerArgs += "-Xexpect-actual-classes"
+    }
+}
+
+tasks.withType<DependencyUpdatesTask> {
+    checkForGradleUpdate = true
+    rejectVersionIf {
+        listOf("-dev-", "-alpha").any { word ->
+            candidate.version.contains(word)
         }
     }
 }
