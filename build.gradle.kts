@@ -1,8 +1,8 @@
 plugins {
-    id("com.android.library").version("8.2.0-rc02").apply(false)
+    id("com.android.library").version("8.2.0-rc03").apply(false)
     kotlin("multiplatform").version("1.9.20").apply(false)
     id("io.gitlab.arturbosch.detekt") version "1.23.3"
-    id("com.github.ben-manes.versions") version "0.49.0"
+    id("com.github.ben-manes.versions") version "0.50.0"
 }
 
 tasks.register("clean", Delete::class) {
@@ -37,6 +37,6 @@ allprojects {
         detektPlugins("io.gitlab.arturbosch.detekt:detekt-rules-libraries:$detektVersion")
         detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:$detektVersion")
         detektPlugins("com.braisgabin.detekt:kotlin-compiler-wrapper:0.0.4")
-        detektPlugins("com.github.hbmartin:hbmartin-detekt-rules:0.1.1")
+        detektPlugins("com.github.hbmartin:hbmartin-detekt-rules:0.1.3")
     }
 }
