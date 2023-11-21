@@ -28,7 +28,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains:annotations:24.0.1")
+                implementation("org.jetbrains:annotations:24.1.0")
                 implementation("com.ionspin.kotlin:bignum:0.3.8")
                 implementation("org.kotlincrypto:secure-random:0.1.0")
                 implementation(platform("org.kotlincrypto.macs:bom:0.3.0"))
