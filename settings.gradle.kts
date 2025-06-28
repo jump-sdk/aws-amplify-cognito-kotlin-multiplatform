@@ -7,6 +7,14 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            from(files("gradle/libs.versions.toml"))
+        }
+        create("kotlincrypto") {
+            from("org.kotlincrypto:version-catalog:0.7.1")
+        }
+    }
     repositories {
         google()
         mavenCentral()

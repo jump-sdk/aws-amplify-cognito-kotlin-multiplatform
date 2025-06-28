@@ -1,8 +1,8 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-    kotlin("multiplatform")
-    id("com.android.library")
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.library)
     id("maven-publish")
 }
 
@@ -28,15 +28,15 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains:annotations:24.1.0")
-                implementation("com.ionspin.kotlin:bignum:0.3.8")
-                implementation("org.kotlincrypto:secure-random:0.1.0")
-                implementation(platform("org.kotlincrypto.macs:bom:0.3.0"))
-                implementation("org.kotlincrypto.macs:hmac-sha2")
-                implementation(platform("org.kotlincrypto.hash:bom:0.3.0"))
-                implementation("org.kotlincrypto.hash:sha2")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
-                implementation("io.ktor:ktor-client-core:2.3.6")
+                implementation(libs.jetbrainsAnnotations)
+                implementation(libs.bignum)
+                implementation(kotlincrypto.random.secure)
+                implementation(platform(kotlincrypto.macs.bom))
+                implementation(kotlincrypto.macs.hmac.sha2)
+                implementation(platform(kotlincrypto.hash.bom))
+                implementation(kotlincrypto.hash.sha2)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.ktor.client.core)
             }
         }
         val commonTest by getting {
@@ -49,9 +49,9 @@ kotlin {
 
 android {
     namespace = "com.jump.sdk.amplifyframework"
-    compileSdk = 34
+    compileSdk = libs.versions.compileSdk.get().toInt()
     defaultConfig {
-        minSdk = 26
+        minSdk = libs.versions.minSdk.get().toInt()
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
