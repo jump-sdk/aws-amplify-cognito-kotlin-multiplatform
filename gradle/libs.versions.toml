@@ -1,0 +1,29 @@
+[versions]
+agp = "8.10.0"
+kotlin = "2.1.21"
+detekt = "1.23.8"
+hbmartinRules = "0.1.7"
+jbAnnotations = "26.0.2"
+bignum = "0.3.10"
+cryptoRandom = "0.5.0"
+cryptoMacs = "0.7.0"
+
+[libraries]
+detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+detekt-hbmartin = { group = "me.haroldmartin", name = "hbmartin-detekt-rules", version.ref = "hbmartinRules" }
+jetbrainsAnnotations = { group = "org.jetbrains", name = "annotations", version.ref = "jbAnnotations" }
+bignum = { group = "com.ionspin.kotlin", name = "bignum", version.ref = "bignum" }
+crypto-random = { group = "org.kotlincrypto", name = "random", version.ref = "cryptoRandom" }
+crypto-macs = { group = "org.kotlincrypto", name = "macs", version.ref = "cryptoMacs" }
+
+implementation(platform("org.kotlincrypto.macs:bom:0.3.0"))
+implementation("org.kotlincrypto.macs:hmac-sha2")
+implementation(platform("org.kotlincrypto.hash:bom:0.3.0"))
+implementation("org.kotlincrypto.hash:sha2")
+implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+implementation("io.ktor:ktor-client-core:2.3.6")
+
+[plugins]
+android-library = { id = "com.android.library", version.ref = "agp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+hbmartinRules = { id = "com.hbmartin.rules", version.ref = "hbmartinRules" }
