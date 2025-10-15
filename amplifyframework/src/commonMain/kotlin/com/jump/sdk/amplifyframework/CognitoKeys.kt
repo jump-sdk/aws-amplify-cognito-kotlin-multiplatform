@@ -17,6 +17,7 @@ package com.jump.sdk.amplifyframework
 
 object CognitoKeys {
     const val CHALLENGE_NAME = "CHALLENGE_NAME"
+    const val CUSTOM_CHALLENGE = "CUSTOM_CHALLENGE"
     const val DEVICE_KEY = "DEVICE_KEY"
     const val PASSWORD_CLAIM_SECRET_BLOCK = "PASSWORD_CLAIM_SECRET_BLOCK"
     const val PASSWORD_CLAIM_SIGNATURE = "PASSWORD_CLAIM_SIGNATURE"
