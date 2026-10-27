@@ -28,14 +28,17 @@ is not a new constant-time SRP implementation. The prior Kotlin implementation
 also branches on exponent bits. SRP randomness, input validation, hashing, HKDF,
 and signature formatting remain in the existing shared code.
 
-The allocator hooks use volatile writes before freeing buffers, including buffers
-replaced during reallocation. The framework and C archive share deployment targets
-in `gradle/ios-srp-native.gradle` (iOS 12, or iOS 14 for the ARM64 simulator).
+The allocator hooks use volatile writes before freeing heap buffers, including
+buffers replaced during reallocation. They do not reach LibTomMath's fixed-size
+stack scratch arrays (`W[MP_WARRAY]` in the fast multiply, square and Montgomery
+paths), and the Kotlin `BigInteger` values for SRP secrets stay in managed memory.
+The C archive uses Kotlin 1.9.20's default deployment targets (iOS 12, or iOS 14
+for the ARM64 simulator).
 
 `./gradlew :amplifyframework:testNativeSrp` runs optimized host C tests under
-AddressSanitizer and UndefinedBehaviorSanitizer. These also run with the existing
-`test` and `iosSimulatorArm64Test` tasks. They check clearing before free,
+AddressSanitizer and UndefinedBehaviorSanitizer. These also run with the
+`iosSimulatorArm64Test` and `iosX64Test` tasks. They check clearing before free,
 reallocation growth/shrink/failure, and the real C bridge + LibTomMath against an
 independent integer reference, including output-capacity and invalid-input cases.
 Host tests require Clang and fetch the same checksum-pinned source archive on
-Linux or macOS. Ordinary Android compilation does not need native sources.
+Linux or macOS. Android compilation and unit tests do not need native sources.

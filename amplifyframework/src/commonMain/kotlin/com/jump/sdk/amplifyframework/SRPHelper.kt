@@ -153,9 +153,7 @@ class SRPHelper(userPool: String) {
 
     // s = ((B - k * (g ^ x) % N) ^ (a + u * x) % N) % N
     internal fun computeS(uValue: BigInteger, xValue: BigInteger, srpB: BigInteger): BigInteger {
-        val base = creator.fromBigInteger(
-            srpB.subtract(k.multiply(srpModPow(BigInteger.TWO, xValue, N))),
-        ).toBigInteger()
+        val base = srpB.subtract(k.multiply(srpModPow(BigInteger.TWO, xValue, N)))
         return srpModPow(base, privateA.add(uValue.multiply(xValue)), N)
     }
 
