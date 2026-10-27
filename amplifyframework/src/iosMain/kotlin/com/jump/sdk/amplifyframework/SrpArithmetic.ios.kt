@@ -41,7 +41,14 @@ internal actual fun srpModPow(base: BigInteger, exponent: BigInteger, modulus: B
             }
             check(status == 0) { "Native SRP arithmetic failed ($status)" }
             if (written.value == 0UL) BigInteger.ZERO
-            else BigInteger.fromByteArray(output.copyOf(written.value.toInt()), Sign.POSITIVE)
+            else {
+                val result = output.copyOf(written.value.toInt())
+                try {
+                    BigInteger.fromByteArray(result, Sign.POSITIVE)
+                } finally {
+                    result.fill(0)
+                }
+            }
         }
     } finally {
         baseBytes.fill(0)

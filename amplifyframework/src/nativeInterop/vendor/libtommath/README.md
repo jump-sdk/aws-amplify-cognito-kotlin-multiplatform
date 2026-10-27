@@ -12,7 +12,7 @@ unmodified C sources and headers into the module's build directory. It generates
 identifier prefixes there to avoid collisions with other embedded LibTomMath
 copies. Neither upstream sources nor generated prefixes are checked in.
 The first native library build requires network access; Gradle caches the ZIP
-and subsequent builds support `--offline`. Android/JVM builds do not need it.
+and subsequent builds support `--offline`. Android/JVM compilation does not need it.
 
 `../../c/jump_srp_config.h` enables modular exponentiation, byte conversion,
 initialization, cleanup, and their upstream dependencies. Fixed multiplication
@@ -27,3 +27,15 @@ This is the upstream variable-window modular exponentiation implementation; it
 is not a new constant-time SRP implementation. The prior Kotlin implementation
 also branches on exponent bits. SRP randomness, input validation, hashing, HKDF,
 and signature formatting remain in the existing shared code.
+
+The allocator hooks use volatile writes before freeing buffers, including buffers
+replaced during reallocation. The framework and C archive share deployment targets
+in `gradle/ios-srp-native.gradle` (iOS 12, or iOS 14 for the ARM64 simulator).
+
+`./gradlew :amplifyframework:testNativeSrp` runs optimized host C tests under
+AddressSanitizer and UndefinedBehaviorSanitizer. These also run with the existing
+`test` and `iosSimulatorArm64Test` tasks. They check clearing before free,
+reallocation growth/shrink/failure, and the real C bridge + LibTomMath against an
+independent integer reference, including output-capacity and invalid-input cases.
+Host tests require Clang and fetch the same checksum-pinned source archive on
+Linux or macOS. Ordinary Android compilation does not need native sources.
