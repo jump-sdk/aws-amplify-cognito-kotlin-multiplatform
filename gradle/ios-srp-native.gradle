@@ -1,0 +1,25 @@
+def nativeSrpSources = rootProject.file('amplifyframework/src/nativeInterop')
+if (!nativeSrpSources.exists()) nativeSrpSources = rootProject.file('../amplifyframework/src/nativeInterop')
+
+kotlin.targets.matching { it.platformType.name() == 'native' }.all { nativeTarget ->
+    def simulatorId = providers.gradleProperty('simulatorId').orNull
+    if (simulatorId && nativeTarget.konanTarget.name != 'ios_arm64') {
+        nativeTarget.testRuns.getByName('test').deviceId = simulatorId
+    }
+    def outputDirectory = layout.buildDirectory.dir("nativeSrp/${nativeTarget.konanTarget.name}")
+    def compileNativeSrp = tasks.register("compileNativeSrp${nativeTarget.name.capitalize()}", Exec) {
+        onlyIf { System.getProperty('os.name').startsWith('Mac') }
+        inputs.dir(nativeSrpSources)
+        inputs.property('target', nativeTarget.konanTarget.name)
+        inputs.property('developerDir', providers.environmentVariable('DEVELOPER_DIR').getOrElse('default'))
+        inputs.property('xcodeVersion', providers.exec { commandLine('xcodebuild', '-version') }.standardOutput.asText)
+        outputs.dir(outputDirectory)
+        commandLine('bash', new File(nativeSrpSources, 'build-ios.sh'), nativeTarget.konanTarget.name, outputDirectory.get().asFile)
+    }
+    nativeTarget.compilations.getByName('main').cinterops.create('jumpSrp') { interop ->
+        defFile(new File(nativeSrpSources, 'jump_srp.def'))
+        includeDirs(new File(nativeSrpSources, 'c'))
+        extraOpts('-libraryPath', outputDirectory.get().asFile.absolutePath)
+        tasks.named(interop.interopProcessingTaskName).configure { dependsOn(compileNativeSrp) }
+    }
+}

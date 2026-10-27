@@ -1,0 +1,8 @@
+
+com.jump.sdk.amplifyframework.SRPHelperTests:.........
+com.jump.sdk.amplifyframework.SrpArithmeticTests:..
+com.jump.sdk.amplifyframework.SrpProductionArithmeticTests:...
+
+Time: 0.526
+
+OK (14 tests)

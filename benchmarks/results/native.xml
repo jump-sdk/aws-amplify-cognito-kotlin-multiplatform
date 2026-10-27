@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.jump.sdk.amplifyframework.SrpBenchmark" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-26T22:30:25.315Z" hostname="mac.lan" time="1.931">
+  <properties/>
+  <testcase name="fullExchange[iosSimulatorArm64]" classname="com.jump.sdk.amplifyframework.SrpBenchmark" time="1.931"/>
+  <system-out><![CDATA[SRP_BENCH iteration=0 publicA_ms=318
+SRP_BENCH iteration=0 signature_ms=321
+SRP_BENCH iteration=1 publicA_ms=320
+SRP_BENCH iteration=1 signature_ms=324
+SRP_BENCH iteration=2 publicA_ms=319
+SRP_BENCH iteration=2 signature_ms=321
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

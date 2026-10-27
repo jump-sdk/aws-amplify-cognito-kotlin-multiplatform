@@ -1,0 +1,3 @@
+headers = jump_srp.h
+package = com.jump.sdk.amplifyframework.nativecrypto
+staticLibraries = libjump_srp.a

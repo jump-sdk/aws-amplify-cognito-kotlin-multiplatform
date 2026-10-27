@@ -1,0 +1,12 @@
+
+com.jump.sdk.amplifyframework.AndroidSrpBenchmark:SRP_BENCH iteration=0 publicA_ms=894
+SRP_BENCH iteration=0 signature_ms=444
+SRP_BENCH iteration=1 publicA_ms=333
+SRP_BENCH iteration=1 signature_ms=317
+SRP_BENCH iteration=2 publicA_ms=276
+SRP_BENCH iteration=2 signature_ms=291
+.
+
+Time: 2.773
+
+OK (1 test)
