@@ -7,20 +7,10 @@ import com.ionspin.kotlin.bignum.integer.Sign
 internal fun srpModPow(base: BigInteger, exponent: BigInteger, modulus: BigInteger): BigInteger {
     require(modulus > BigInteger.ZERO) { "Modulus must be positive" }
     require(exponent >= BigInteger.ZERO) { "Exponent must be nonnegative" }
-    val baseBytes = base.mod(modulus).toByteArray()
-    val exponentBytes = exponent.toByteArray()
-    val result = try {
-        platformModPow(baseBytes, exponentBytes, modulus.toByteArray())
-    } finally {
-        baseBytes.fill(0)
-        exponentBytes.fill(0)
-    }
-    return try {
-        if (result.isEmpty()) BigInteger.ZERO else BigInteger.fromByteArray(result, Sign.POSITIVE)
-    } finally {
-        result.fill(0)
-    }
+    if (modulus == BigInteger.ONE) return BigInteger.ZERO
+    val result = platformModPow(base.mod(modulus).toByteArray(), exponent.toByteArray(), modulus.toByteArray())
+    return if (result.isEmpty()) BigInteger.ZERO else BigInteger.fromByteArray(result, Sign.POSITIVE)
 }
 
-/** Unsigned, big-endian (base ^ exponent) % modulus. An empty array is zero. */
+/** Unsigned, big-endian (base ^ exponent) % modulus for a modulus above one. An empty array is zero. */
 internal expect fun platformModPow(base: ByteArray, exponent: ByteArray, modulus: ByteArray): ByteArray

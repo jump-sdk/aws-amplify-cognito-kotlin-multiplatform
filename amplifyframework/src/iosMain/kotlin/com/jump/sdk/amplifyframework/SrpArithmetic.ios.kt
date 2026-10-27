@@ -17,27 +17,24 @@ internal actual fun platformModPow(base: ByteArray, exponent: ByteArray, modulus
     val baseBytes = if (base.isEmpty()) byteArrayOf(0) else base
     val exponentBytes = if (exponent.isEmpty()) byteArrayOf(0) else exponent
     val output = ByteArray(modulus.size)
-    return try {
-        memScoped {
-            val written = alloc<size_tVar>()
-            val status = baseBytes.usePinned { b ->
-                exponentBytes.usePinned { e ->
-                    modulus.usePinned { m ->
-                        output.usePinned { r ->
-                            jump_srp_mod_pow(
-                                b.addressOf(0).reinterpret(), baseBytes.size.convert(),
-                                e.addressOf(0).reinterpret(), exponentBytes.size.convert(),
-                                m.addressOf(0).reinterpret(), modulus.size.convert(),
-                                r.addressOf(0).reinterpret(), output.size.convert(), written.ptr,
-                            )
-                        }
+    val written = memScoped {
+        val size = alloc<size_tVar>()
+        val status = baseBytes.usePinned { b ->
+            exponentBytes.usePinned { e ->
+                modulus.usePinned { m ->
+                    output.usePinned { r ->
+                        jump_srp_mod_pow(
+                            b.addressOf(0).reinterpret(), baseBytes.size.convert(),
+                            e.addressOf(0).reinterpret(), exponentBytes.size.convert(),
+                            m.addressOf(0).reinterpret(), modulus.size.convert(),
+                            r.addressOf(0).reinterpret(), output.size.convert(), size.ptr,
+                        )
                     }
                 }
             }
-            check(status == 0) { "Native SRP arithmetic failed ($status)" }
-            output.copyOf(written.value.toInt())
         }
-    } finally {
-        output.fill(0)
+        check(status == 0) { "Native SRP arithmetic failed ($status)" }
+        size.value.toInt()
     }
+    return output.copyOf(written)
 }
