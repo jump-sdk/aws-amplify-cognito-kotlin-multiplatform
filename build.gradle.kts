@@ -11,6 +11,17 @@ tasks.register("clean", Delete::class) {
 
 allprojects {
     repositories {
+        exclusiveContent {
+            forRepository {
+                ivy {
+                    name = "LibTomMathSource"
+                    url = uri("https://github.com/libtom/libtommath/releases/download")
+                    patternLayout { artifact("v[revision]/[artifact]-[revision].[ext]") }
+                    metadataSources { artifact() }
+                }
+            }
+            filter { includeModule("org.libtom", "ltm") }
+        }
         google()
         mavenCentral()
         gradlePluginPortal()

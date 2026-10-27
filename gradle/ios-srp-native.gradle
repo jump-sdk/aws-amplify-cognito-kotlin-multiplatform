@@ -1,14 +1,3 @@
-// Resolve the official release as a source dependency, not a runtime dependency.
-def tommathRepository = repositories.ivy {
-    name = 'LibTomMathSource'
-    url = uri('https://github.com/libtom/libtommath/releases/download')
-    patternLayout { artifact('v[revision]/[artifact]-[revision].[ext]') }
-    metadataSources { artifact() }
-}
-repositories.exclusiveContent {
-    forRepositories(tommathRepository)
-    filter { includeModule('org.libtom', 'ltm') }
-}
 def nativeSrpArchive = configurations.create('nativeSrpArchive') {
     canBeConsumed = false
     canBeResolved = true
