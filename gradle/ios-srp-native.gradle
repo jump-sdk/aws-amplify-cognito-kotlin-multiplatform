@@ -42,7 +42,6 @@ def prepareNativeSrp = tasks.register('prepareNativeSrp') {
 }
 
 def nativeSrpSources = rootProject.file('amplifyframework/src/nativeInterop')
-if (!nativeSrpSources.exists()) nativeSrpSources = rootProject.file('../amplifyframework/src/nativeInterop')
 
 kotlin.targets.matching { it.platformType.name() == 'native' }.all { nativeTarget ->
     def simulatorId = providers.gradleProperty('simulatorId').orNull

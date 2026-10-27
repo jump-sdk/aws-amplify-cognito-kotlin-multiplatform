@@ -1,8 +1,0 @@
-SRP_RELEASE debuggable=false sdk=34
-SRP_BENCH iteration=0 publicA_ms=203 publicA_hash=520856955
-SRP_BENCH iteration=0 signature_ms=93 signature=lc79HyvTT18kWUPsnruOKLcZA9+4gys5YfuIKrbYeRI=
-SRP_BENCH iteration=1 publicA_ms=88 publicA_hash=299848242
-SRP_BENCH iteration=1 signature_ms=91 signature=NKFH3rd3PeqynFYsq+nYKvRBYewXtGx9J2P1hejGn18=
-SRP_BENCH iteration=2 publicA_ms=88 publicA_hash=-1028320637
-SRP_BENCH iteration=2 signature_ms=103 signature=TAylQXuKbFLJmCjS6ahvDWCSrr9hmlnTkjaIvOODj7E=
-SRP_RELEASE_OK
