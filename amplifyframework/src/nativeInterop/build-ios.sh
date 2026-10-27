@@ -13,17 +13,12 @@ case "$target" in
 esac
 mkdir -p "$output_dir"
 sdk_path="$(xcrun --sdk "$sdk" --show-sdk-path)"
-# Compile unmodified upstream units in a single translation unit.
-translation_unit="$output_dir/libtommath.c"
-: > "$translation_unit"
-for source_file in "$upstream_dir"/*.c; do
-  printf '#include "%s"\n' "$source_file" >> "$translation_unit"
-done
-for unit in "$translation_unit" "$source_dir/c/jump_srp.c" "$source_dir/c/jump_srp_memory.c"; do
-  object_name="$(basename "$unit" .c)"
-  xcrun --sdk "$sdk" clang -c "$unit" -o "$output_dir/$object_name.o" \
-    -target "$triple" -isysroot "$sdk_path" -std=c99 -O2 -fvisibility=hidden \
-    -I "$source_dir/c" -I "$upstream_dir" -I "$upstream_dir/.." \
-    -include "$source_dir/c/jump_srp_config.h"
-done
-xcrun libtool -static -o "$output_dir/libjump_srp.a" "$output_dir/libtommath.o" "$output_dir/jump_srp.o" "$output_dir/jump_srp_memory.o"
+cflags="-target $triple -isysroot $sdk_path -I $source_dir/c -I $upstream_dir/.. -include $source_dir/c/jump_srp_config.h"
+# The upstream makefile builds objects next to the sources, so each target gets its own copy.
+build_dir="$output_dir/libtommath"
+rm -rf "$build_dir"
+cp -R "$upstream_dir" "$build_dir"
+make -C "$build_dir" libtommath.a \
+  CC="xcrun --sdk $sdk clang" AR="xcrun --sdk $sdk ar" RANLIB="xcrun --sdk $sdk ranlib" CFLAGS="$cflags"
+xcrun --sdk "$sdk" clang -c "$source_dir/c/jump_srp.c" -o "$output_dir/jump_srp.o" -std=c99 -O2 -I "$upstream_dir" $cflags
+xcrun libtool -static -o "$output_dir/libjump_srp.a" "$build_dir/libtommath.a" "$output_dir/jump_srp.o"

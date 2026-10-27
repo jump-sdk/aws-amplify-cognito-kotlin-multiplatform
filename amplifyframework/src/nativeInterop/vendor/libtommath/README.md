@@ -18,8 +18,9 @@ and subsequent builds support `--offline`. Android/JVM compilation does not need
 initialization, cleanup, and their upstream dependencies. Fixed multiplication
 cutoffs avoid global mutable tuning parameters.
 
-`../../build-ios.sh` compiles this component with `-O2` for each iOS architecture,
-including when Kotlin is built in Debug. The archive is embedded in the cinterop
+`../../build-ios.sh` builds `libtommath.a` with the upstream makefile (`-O3`) for
+each iOS architecture, including when Kotlin is built in Debug, and adds the
+small `jump_srp.c` bridge. The archive is embedded in the cinterop
 KLIB. Published SDK consumers need no source download, C dependency, or compiler
 configuration; source resolution happens only when building this library.
 
@@ -28,17 +29,17 @@ is not a new constant-time SRP implementation. The prior Kotlin implementation
 also branches on exponent bits. SRP randomness, input validation, hashing, HKDF,
 and signature formatting remain in the existing shared code.
 
-The allocator hooks use volatile writes before freeing heap buffers, including
-buffers replaced during reallocation. They do not reach LibTomMath's fixed-size
-stack scratch arrays (`W[MP_WARRAY]` in the fast multiply, square and Montgomery
-paths), and the Kotlin `BigInteger` values for SRP secrets stay in managed memory.
+LibTomMath's default zero-on-free clears heap digit buffers before freeing them.
+It does not clear buffers that `realloc` replaces, or its fixed-size stack scratch
+arrays (`W[MP_WARRAY]` in the fast multiply, square and Montgomery paths), and the
+Kotlin `BigInteger` values for SRP secrets stay in managed memory.
 The C archive uses Kotlin 1.9.20's default deployment targets (iOS 12, or iOS 14
 for the ARM64 simulator).
 
 `./gradlew :amplifyframework:testNativeSrp` runs optimized host C tests under
 AddressSanitizer and UndefinedBehaviorSanitizer. These also run with the
-`iosSimulatorArm64Test` and `iosX64Test` tasks. They check clearing before free,
-reallocation growth/shrink/failure, and the real C bridge + LibTomMath against an
-independent integer reference, including output-capacity and invalid-input cases.
-Host tests require Clang and fetch the same checksum-pinned source archive on
+`iosSimulatorArm64Test` and `iosX64Test` tasks. They check the real C bridge +
+LibTomMath against an independent integer reference, including output-capacity
+and invalid-input cases.
+Host tests require Clang and make and fetch the same checksum-pinned source archive on
 Linux or macOS. Android compilation and unit tests do not need native sources.

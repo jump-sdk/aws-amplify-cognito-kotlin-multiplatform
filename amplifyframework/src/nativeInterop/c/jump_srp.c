@@ -25,7 +25,7 @@ int jump_srp_mod_pow(
     }
     status = mp_to_ubin(&r, result, result_capacity, result_size);
 cleanup:
-    /* The allocator hooks clear heap digit buffers; LibTomMath's stack scratch arrays are not cleared. */
+    /* LibTomMath zeroes heap digit buffers on free; its stack scratch arrays are not cleared. */
     mp_clear_multi(&b, &e, &m, &r, NULL);
     return status;
 }

@@ -5,16 +5,13 @@ upstream_dir="$1"
 output_dir="$2"
 mkdir -p "$output_dir"
 compiler="${CC:-clang}"
-flags=(-std=c99 -O2 -g -fsanitize=address,undefined -fno-omit-frame-pointer)
-"$compiler" "${flags[@]}" -Wall -Wextra -Werror "$source_dir/tests/memory_test.c" -o "$output_dir/memory_test"
-"$output_dir/memory_test"
-translation_unit="$output_dir/libtommath.c"
-: > "$translation_unit"
-for source_file in "$upstream_dir"/*.c; do
-  printf '#include "%s"\n' "$source_file" >> "$translation_unit"
-done
-"$compiler" "${flags[@]}" -I "$source_dir/c" -I "$upstream_dir" -I "$upstream_dir/.." \
-  -include "$source_dir/c/jump_srp_config.h" \
-  "$translation_unit" "$source_dir/c/jump_srp.c" "$source_dir/c/jump_srp_memory.c" \
-  "$source_dir/tests/arithmetic_test.c" -o "$output_dir/arithmetic_test"
+flags="-g -fsanitize=address,undefined -fno-omit-frame-pointer"
+cflags="$flags -I $source_dir/c -I $upstream_dir/.. -include $source_dir/c/jump_srp_config.h"
+build_dir="$output_dir/libtommath"
+rm -rf "$build_dir"
+cp -R "$upstream_dir" "$build_dir"
+make -C "$build_dir" libtommath.a CC="$compiler" CFLAGS="$cflags"
+"$compiler" -std=c99 -O2 -I "$upstream_dir" $cflags \
+  "$source_dir/c/jump_srp.c" "$source_dir/tests/arithmetic_test.c" "$build_dir/libtommath.a" \
+  -o "$output_dir/arithmetic_test"
 "$output_dir/arithmetic_test"
