@@ -3,6 +3,8 @@ plugins {
     id("com.android.library") version "8.13.2"
     id("com.android.application") version "8.13.2" apply false
 }
+repositories { google(); mavenCentral() }
+
 val srpBackend = providers.gradleProperty("srpBackend").getOrElse("native")
 require(srpBackend in setOf("native", "kotlin")) { "srpBackend must be native or kotlin" }
 val androidBackend = providers.gradleProperty("androidBackend").getOrElse("java")

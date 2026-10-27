@@ -3,6 +3,7 @@ set -euo pipefail
 source_dir="$(cd "$(dirname "$0")" && pwd)"
 target="$1"
 output_dir="$2"
+upstream_dir="$3"
 case "$target" in
   ios_arm64) sdk=iphoneos; triple=arm64-apple-ios13.0 ;;
   ios_simulator_arm64) sdk=iphonesimulator; triple=arm64-apple-ios13.0-simulator ;;
@@ -11,11 +12,17 @@ case "$target" in
 esac
 mkdir -p "$output_dir"
 sdk_path="$(xcrun --sdk "$sdk" --show-sdk-path)"
-for unit in vendor/libtommath/libtommath c/jump_srp; do
-  object_name="${unit##*/}"
-  xcrun --sdk "$sdk" clang -c "$source_dir/$unit.c" -o "$output_dir/$object_name.o" \
+# Compile unmodified upstream units in a single translation unit.
+translation_unit="$output_dir/libtommath.c"
+: > "$translation_unit"
+for source_file in "$upstream_dir"/*.c; do
+  printf '#include "%s"\n' "$source_file" >> "$translation_unit"
+done
+for unit in "$translation_unit" "$source_dir/c/jump_srp.c"; do
+  object_name="$(basename "$unit" .c)"
+  xcrun --sdk "$sdk" clang -c "$unit" -o "$output_dir/$object_name.o" \
     -target "$triple" -isysroot "$sdk_path" -std=c99 -O2 -fvisibility=hidden \
-    -I "$source_dir/c" -I "$source_dir/vendor/libtommath" \
+    -I "$source_dir/c" -I "$upstream_dir" -I "$upstream_dir/.." \
     -include "$source_dir/c/jump_srp_config.h"
 done
 xcrun libtool -static -o "$output_dir/libjump_srp.a" "$output_dir/libtommath.o" "$output_dir/jump_srp.o"

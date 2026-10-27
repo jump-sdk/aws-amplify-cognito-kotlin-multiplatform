@@ -22,6 +22,10 @@ fixed exponent used by the correctness tests. Every iteration constructs a new
 helper, then measures `getPublicA` and `getSignature` separately. Setup and key
 reuse cannot hide the public-key generation cost.
 
+After switching to the checksum-pinned build dependency, the same simulator
+measured 0.653 s Debug and 0.038 s Release per exchange, with all 15 tests passing
+in each build. See [the validation rerun](results/ios-source-dependency-validation.txt).
+
 ## Repeat
 
 From the fork root, choose an available simulator UDID:
@@ -44,8 +48,10 @@ separately for simulator tests, Android tests, and device/simulator framework li
 Shared SRP calls `srpModPow`; Android uses the platform `java.math.BigInteger`.
 iOS calls an embedded, namespaced LibTomMath 1.3.0 archive. The C build is cached
 per architecture and does not turn on optimization for the Kotlin SDK. The
-archive is bundled with the cinterop KLIB for downstream linking. See the
-[vendor notes](../amplifyframework/src/nativeInterop/vendor/libtommath/README.md).
+archive is bundled with the cinterop KLIB for downstream linking. Gradle resolves
+the official source ZIP with a pinned SHA-256; the first native build needs network
+access and later builds can use the cached archive offline. See the
+[native dependency notes](../amplifyframework/src/nativeInterop/vendor/libtommath/README.md).
 
 The dependency stays on bignum 0.3.8 because upgrading it did not help. Shared
 hashing, HKDF, wire formatting, and random exponent generation remain unchanged.

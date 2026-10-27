@@ -1,24 +1,27 @@
 # LibTomMath for iOS SRP arithmetic
 
-Upstream: https://github.com/libtom/libtommath, tag `v1.3.0`, commit
-`95d80fd8229d05dd6cb4ec88bc8d4f5377ff00ef`. License: [Unlicense](LICENSE).
+The native build resolves the official [LibTomMath 1.3.0 release](https://github.com/libtom/libtommath/releases/tag/v1.3.0)
+as a Gradle build dependency. License: [Unlicense](LICENSE).
 
-`libtommath.c` concatenates the unmodified upstream root C files in filename
-order. The headers are unmodified. No download occurs during a build.
-Regenerate from a clean checkout of that commit:
+- Artifact: `https://github.com/libtom/libtommath/releases/download/v1.3.0/ltm-1.3.0.zip`
+- SHA-256: `1edd7a4382a9bfea79ff6cbe5b898380dd1f64d13f9b3e18aaa8987c83da29fd`
+- Upstream commit: `95d80fd8229d05dd6cb4ec88bc8d4f5377ff00ef`
 
-```sh
-python3 tools/vendor-libtommath.py /path/to/libtommath
-```
+`gradle/ios-srp-native.gradle` verifies the checksum before extracting the
+unmodified C sources and headers into the module's build directory. It generates
+identifier prefixes there to avoid collisions with other embedded LibTomMath
+copies. Neither upstream sources nor generated prefixes are checked in.
+The first native library build requires network access; Gradle caches the ZIP
+and subsequent builds support `--offline`. Android/JVM builds do not need it.
 
-The generated `../../c/jump_srp_config.h` enables only modular exponentiation,
-byte conversion, initialization, cleanup, and their upstream dependencies. It
-prefixes identifiers to avoid collisions with other embedded LibTomMath copies.
-Fixed upstream multiplication cutoffs avoid global mutable tuning parameters.
+`../../c/jump_srp_config.h` enables modular exponentiation, byte conversion,
+initialization, cleanup, and their upstream dependencies. Fixed multiplication
+cutoffs avoid global mutable tuning parameters.
 
 `../../build-ios.sh` compiles this component with `-O2` for each iOS architecture,
 including when Kotlin is built in Debug. The archive is embedded in the cinterop
-KLIB, so consumers need no separate C dependency or compiler configuration.
+KLIB. Published SDK consumers need no source download, C dependency, or compiler
+configuration; source resolution happens only when building this library.
 
 This is the upstream variable-window modular exponentiation implementation; it
 is not a new constant-time SRP implementation. The prior Kotlin implementation
