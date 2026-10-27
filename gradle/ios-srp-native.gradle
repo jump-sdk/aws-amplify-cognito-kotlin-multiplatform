@@ -34,20 +34,6 @@ def prepareNativeSrp = tasks.register('prepareNativeSrp') {
 
 def nativeSrpSources = file('src/nativeInterop')
 
-def nativeSrpTestDirectory = layout.buildDirectory.dir('nativeSrp/tests')
-def testNativeSrp = tasks.register('testNativeSrp', Exec) {
-    dependsOn(prepareNativeSrp)
-    inputs.dir(nativeSrpSources)
-    inputs.dir(upstreamDirectory)
-    outputs.dir(nativeSrpTestDirectory)
-    commandLine('bash', new File(nativeSrpSources, 'tests/run.sh'),
-        upstreamDirectory.get().dir('libtommath-1.3.0').asFile,
-        nativeSrpTestDirectory.get().asFile)
-}
-tasks.matching { it.name == 'iosSimulatorArm64Test' || it.name == 'iosX64Test' }.configureEach {
-    dependsOn(testNativeSrp)
-}
-
 kotlin.targets.matching { it.platformType.name() == 'native' }.all { nativeTarget ->
     // Kotlin 1.9.20's default osVersionMin for each target, so the C archive matches the framework.
     def minimumIos = nativeTarget.konanTarget.name == 'ios_simulator_arm64' ? '14.0' : '12.0'

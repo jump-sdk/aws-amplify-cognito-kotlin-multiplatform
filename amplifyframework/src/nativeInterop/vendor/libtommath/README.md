@@ -1,45 +1,22 @@
 # LibTomMath for iOS SRP arithmetic
 
-The native build resolves the official [LibTomMath 1.3.0 release](https://github.com/libtom/libtommath/releases/tag/v1.3.0)
+The iOS build resolves the official [LibTomMath 1.3.0 release](https://github.com/libtom/libtommath/releases/tag/v1.3.0)
 as a Gradle build dependency. License: [Unlicense](LICENSE).
 
 - Artifact: `https://github.com/libtom/libtommath/releases/download/v1.3.0/ltm-1.3.0.zip`
 - SHA-256: `1edd7a4382a9bfea79ff6cbe5b898380dd1f64d13f9b3e18aaa8987c83da29fd`
 - Upstream commit: `95d80fd8229d05dd6cb4ec88bc8d4f5377ff00ef`
 
-`gradle/ios-srp-native.gradle` verifies the checksum before extracting the
-unmodified C sources and headers into the module's build directory. It generates
-identifier prefixes there to avoid collisions with other embedded LibTomMath
-copies. Neither upstream sources nor generated prefixes are checked in.
-The first native library build requires network access; Gradle caches the ZIP
-and subsequent builds support `--offline`. Android/JVM compilation does not need it.
+`gradle/ios-srp-native.gradle` checks the SHA-256, extracts the sources into the
+build directory, and generates a header that prefixes LibTomMath's symbols, so
+another LibTomMath copy in the same app can't replace ours at link time.
+`../../build-ios.sh` builds it with the upstream makefile for each iOS target and
+adds the `jump_srp.c` bridge. `../../c/jump_srp_config.h` limits the build to what
+`mp_exptmod` needs. The archive is embedded in the cinterop KLIB, so SDK consumers
+need no download, C toolchain or setup. The first library build needs network
+access; after that, Gradle's cache works offline.
 
-`../../c/jump_srp_config.h` enables modular exponentiation, byte conversion,
-initialization, cleanup, and their upstream dependencies. Fixed multiplication
-cutoffs avoid global mutable tuning parameters.
-
-`../../build-ios.sh` builds `libtommath.a` with the upstream makefile (`-O3`) for
-each iOS architecture, including when Kotlin is built in Debug, and adds the
-small `jump_srp.c` bridge. The archive is embedded in the cinterop
-KLIB. Published SDK consumers need no source download, C dependency, or compiler
-configuration; source resolution happens only when building this library.
-
-This is the upstream variable-window modular exponentiation implementation; it
-is not a new constant-time SRP implementation. The prior Kotlin implementation
-also branches on exponent bits. SRP randomness, input validation, hashing, HKDF,
-and signature formatting remain in the existing shared code.
-
-LibTomMath's default zero-on-free clears heap digit buffers before freeing them.
-It does not clear buffers that `realloc` replaces, or its fixed-size stack scratch
-arrays (`W[MP_WARRAY]` in the fast multiply, square and Montgomery paths), and the
-Kotlin `BigInteger` values for SRP secrets stay in managed memory.
-The C archive uses Kotlin 1.9.20's default deployment targets (iOS 12, or iOS 14
-for the ARM64 simulator).
-
-`./gradlew :amplifyframework:testNativeSrp` runs optimized host C tests under
-AddressSanitizer and UndefinedBehaviorSanitizer. These also run with the
-`iosSimulatorArm64Test` and `iosX64Test` tasks. They check the real C bridge +
-LibTomMath against an independent integer reference, including output-capacity
-and invalid-input cases.
-Host tests require Clang and make and fetch the same checksum-pinned source archive on
-Linux or macOS. Android compilation and unit tests do not need native sources.
+`mp_exptmod` is not constant time, and neither was the prior Kotlin code.
+LibTomMath's default zero-on-free clears heap digit buffers. Buffers that `realloc`
+replaces, its stack scratch arrays and the Kotlin `BigInteger` secrets are not
+cleared.
