@@ -22,6 +22,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlinx.coroutines.runBlocking
 
@@ -155,5 +156,42 @@ class SRPHelperTests {
             userIdForSrp = userIdForSrp,
         )
         assertEquals(m1Expected, Base64.encode(m1Actual))
+    }
+
+    @Test
+    fun testPublicAAgainstKnownVector() {
+        val modulus = BigInteger.parseString(HEX_N, 16)
+        assertEquals(publicA, srpModPow(BigInteger.TWO, privateA, modulus))
+    }
+
+    @Test
+    fun testCompleteSignatureAgainstKnownVector() = runBlocking {
+        // Expected HMAC uses the independently verified HKDF key fixture and decoded secret block.
+        helper.timestamp = "Wed Sep 29 06:40:48 UTC 2021"
+        assertEquals(
+            "ehnqdfUzwXcTYDzTtjDIe5nbKwsHuC0I9LhPfsYQ9qM=",
+            helper.getSignature(
+                salt = "e7dc204cebbfda6b62b8493e932f7f4c",
+                srpB = srpB.toString(16),
+                secretBlock = secretBlock,
+                userIdForSrp = userIdForSrp,
+                password = password,
+            ),
+        )
+    }
+
+    @Test
+    fun testRejectsInvalidServerPublicValue() = runBlocking {
+        for (invalidB in listOf("0", HEX_N)) {
+            assertFailsWith<CognitoException.BadSrpB> {
+                helper.getSignature(
+                    salt = "0",
+                    srpB = invalidB,
+                    secretBlock = "AQIDBA==",
+                    userIdForSrp = userIdForSrp,
+                    password = password,
+                )
+            }
+        }
     }
 }

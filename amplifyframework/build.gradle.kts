@@ -14,6 +14,7 @@ kotlin {
     applyDefaultHierarchyTemplate()
     androidTarget {
         publishLibraryVariants("release")
+        compilations.all { kotlinOptions.jvmTarget = "17" }
     }
     listOf(
         iosX64(),
@@ -99,4 +100,10 @@ tasks.withType<DependencyUpdatesTask> {
             candidate.version.contains(word)
         }
     }
+}
+
+apply(from = rootProject.file("gradle/ios-srp-native.gradle"))
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    jvmTarget = "17"
 }

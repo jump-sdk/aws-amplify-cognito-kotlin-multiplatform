@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library").version("8.2.0-rc03").apply(false)
+    id("com.android.library").version("8.13.2").apply(false)
     kotlin("multiplatform").version("1.9.20").apply(false)
     id("io.gitlab.arturbosch.detekt") version "1.23.3"
     id("com.github.ben-manes.versions") version "0.50.0"
@@ -11,6 +11,17 @@ tasks.register("clean", Delete::class) {
 
 allprojects {
     repositories {
+        exclusiveContent {
+            forRepository {
+                ivy {
+                    name = "LibTomMathSource"
+                    url = uri("https://github.com/libtom/libtommath/releases/download")
+                    patternLayout { artifact("v[revision]/[artifact]-[revision].[ext]") }
+                    metadataSources { artifact() }
+                }
+            }
+            filter { includeModule("org.libtom", "ltm") }
+        }
         google()
         mavenCentral()
         gradlePluginPortal()

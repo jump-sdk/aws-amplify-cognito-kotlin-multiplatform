@@ -1,4 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-beta06" type="baseline" client="gradle" dependencies="true" name="AGP (8.2.0-beta06)" variant="all" version="8.2.0-beta06">
+<issues format="6" by="lint 8.13.2" type="baseline" client="gradle" dependencies="true" name="AGP (8.13.2)" variant="all" version="8.13.2">
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of `compileSdkVersion` than 34 is available: 36"
+        errorLine1="    compileSdk = 34"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="53"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.jetbrains:annotations than 24.1.0 is available: 26.1.0"
+        errorLine1="                implementation(&quot;org.jetbrains:annotations:24.1.0&quot;)"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="32"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of com.ionspin.kotlin:bignum than 0.3.8 is available: 0.3.10"
+        errorLine1="                implementation(&quot;com.ionspin.kotlin:bignum:0.3.8&quot;)"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="33"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.kotlincrypto:secure-random than 0.1.0 is available: 0.4.0"
+        errorLine1="                implementation(&quot;org.kotlincrypto:secure-random:0.1.0&quot;)"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="34"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.kotlincrypto.macs:bom than 0.3.0 is available: 0.8.0"
+        errorLine1="                implementation(platform(&quot;org.kotlincrypto.macs:bom:0.3.0&quot;))"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="35"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.kotlincrypto.hash:bom than 0.3.0 is available: 0.8.0"
+        errorLine1="                implementation(platform(&quot;org.kotlincrypto.hash:bom:0.3.0&quot;))"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="37"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.jetbrains.kotlinx:kotlinx-datetime than 0.4.1 is available: 0.8.0"
+        errorLine1="                implementation(&quot;org.jetbrains.kotlinx:kotlinx-datetime:0.4.1&quot;)"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="39"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of io.ktor:ktor-client-core than 2.3.6 is available: 3.6.0"
+        errorLine1="                implementation(&quot;io.ktor:ktor-client-core:2.3.6&quot;)"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle.kts"
+            line="40"
+            column="32"/>
+    </issue>
 
 </issues>

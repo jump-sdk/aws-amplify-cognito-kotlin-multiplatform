@@ -37,7 +37,7 @@ private const val SRP_A_GEN_WAIT = 50L
 
 // Precomputed safe 3072-bit prime 'N', as decimal.
 // https://datatracker.ietf.org/doc/html/rfc5054#appendix-A (Page 16)
-private const val HEX_N =
+internal const val HEX_N =
     "FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A" +
         "431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5" +
         "AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62" +
@@ -61,7 +61,6 @@ class SRPHelper(userPool: String) {
     @Suppress("VariableNaming")
     private val N = BigInteger.fromTwosComplementByteArray(nByteArray)
     private val creator = ModularBigInteger.creatorForModulo(N)
-    private val g = creator.fromInt(2)
     private val random = SecureRandom()
     private val k: BigInteger = BigInteger.fromTwosComplementByteArray(kByteArray)
     private val digest = SHA256()
@@ -98,7 +97,7 @@ class SRPHelper(userPool: String) {
                         )
                         .mod(N)
                     // A = (g ^ a) % N
-                    publicA = g.pow(privateA)
+                    publicA = creator.fromBigInteger(srpModPow(BigInteger.TWO, privateA, N))
                 } while (publicA.residue == BigInteger.ZERO)
                 srpState = SrpGenerationState.COMPLETED
                 publicA.toString(HEX)
@@ -149,23 +148,13 @@ class SRPHelper(userPool: String) {
         password: String,
     ): ModularBigInteger {
         val xValue = computeX(salt = salt, userIdForSrp = userIdForSrp, password = password)
-        return g.pow(xValue)
+        return creator.fromBigInteger(srpModPow(BigInteger.TWO, xValue, N))
     }
 
     // s = ((B - k * (g ^ x) % N) ^ (a + u * x) % N) % N
     internal fun computeS(uValue: BigInteger, xValue: BigInteger, srpB: BigInteger): BigInteger {
-        return creator
-            .fromBigInteger(
-                srpB.subtract(
-                    k.multiply(
-                        g.pow(xValue).toBigInteger(),
-                    ),
-                ),
-            )
-            .pow(
-                privateA.add(uValue.multiply(xValue)),
-            )
-            .toBigInteger()
+        val base = srpB.subtract(k.multiply(srpModPow(BigInteger.TWO, xValue, N)))
+        return srpModPow(base, privateA.add(uValue.multiply(xValue)), N)
     }
 
     // p = MAC("Caldera Derived Key" | 1, MAC(s, u))[0:16]

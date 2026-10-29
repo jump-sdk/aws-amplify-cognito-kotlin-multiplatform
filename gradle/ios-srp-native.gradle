@@ -1,0 +1,61 @@
+def nativeSrpArchive = configurations.create('nativeSrpArchive') {
+    canBeConsumed = false
+    canBeResolved = true
+    transitive = false
+}
+dependencies.add(nativeSrpArchive.name, 'org.libtom:ltm:1.3.0@zip')
+def upstreamDirectory = layout.buildDirectory.dir('nativeSrp/upstream')
+def fileOperations = services.get(FileSystemOperations)
+def archiveOperations = services.get(ArchiveOperations)
+def prepareNativeSrp = tasks.register('prepareNativeSrp') {
+    def sourceArchives = nativeSrpArchive
+    def outputDirectory = upstreamDirectory
+    inputs.files(sourceArchives)
+    inputs.property('sha256', '1edd7a4382a9bfea79ff6cbe5b898380dd1f64d13f9b3e18aaa8987c83da29fd')
+    outputs.dir(outputDirectory)
+    doLast { task ->
+        def sourceArchive = sourceArchives.singleFile
+        def actual = java.security.MessageDigest.getInstance('SHA-256').digest(sourceArchive.bytes).encodeHex().toString()
+        if (actual != task.inputs.properties.sha256) throw new GradleException('LibTomMath source checksum mismatch')
+        fileOperations.sync {
+            from(archiveOperations.zipTree(sourceArchive))
+            include('libtommath-1.3.0/*.c', 'libtommath-1.3.0/*.h', 'libtommath-1.3.0/makefile*')
+            into(outputDirectory)
+        }
+        def sourceDirectory = outputDirectory.get().dir('libtommath-1.3.0').asFile
+        def sourceText = sourceDirectory.listFiles().findAll { it.name.endsWith('.c') || it.name.endsWith('.h') }
+            .collect { it.text }.join('\n')
+        def names = (sourceText =~ /\b(?:mp_|s_mp_)\w+\b/).findAll().toSet()
+        def macros = (sourceText =~ /#\s*define\s+((?:mp_|s_mp_)\w+)/).collect { it[1] }.toSet()
+        def symbols = (names - macros).sort().collect { "#define ${it} jump_srp_${it}" }.join('\n')
+        outputDirectory.get().file('jump_srp_symbols.h').asFile.text = symbols + '\n'
+    }
+}
+
+def nativeSrpSources = file('src/nativeInterop')
+
+kotlin.targets.matching { it.platformType.name() == 'native' }.all { nativeTarget ->
+    // Kotlin 1.9.20's default osVersionMin for each target, so the C archive matches the framework.
+    def minimumIos = nativeTarget.konanTarget.name == 'ios_simulator_arm64' ? '14.0' : '12.0'
+    def simulatorId = providers.gradleProperty('simulatorId').orNull
+    if (simulatorId && nativeTarget.konanTarget.name != 'ios_arm64') {
+        nativeTarget.testRuns.getByName('test').deviceId = simulatorId
+    }
+    def outputDirectory = layout.buildDirectory.dir("nativeSrp/${nativeTarget.konanTarget.name}")
+    def compileNativeSrp = tasks.register("compileNativeSrp${nativeTarget.name.capitalize()}", Exec) {
+        onlyIf { System.getProperty('os.name').startsWith('Mac') }
+        dependsOn(prepareNativeSrp)
+        inputs.dir(nativeSrpSources)
+        inputs.dir(upstreamDirectory)
+        inputs.property('target', nativeTarget.konanTarget.name)
+        inputs.property('minimumIos', minimumIos)
+        outputs.dir(outputDirectory)
+        commandLine('bash', new File(nativeSrpSources, 'build-ios.sh'), nativeTarget.konanTarget.name, outputDirectory.get().asFile, upstreamDirectory.get().dir("libtommath-1.3.0").asFile, minimumIos)
+    }
+    nativeTarget.compilations.getByName('main').cinterops.create('jumpSrp') { interop ->
+        defFile(new File(nativeSrpSources, 'jump_srp.def'))
+        includeDirs(new File(nativeSrpSources, 'c'))
+        extraOpts('-libraryPath', outputDirectory.get().asFile.absolutePath)
+        tasks.named(interop.interopProcessingTaskName).configure { dependsOn(compileNativeSrp) }
+    }
+}
