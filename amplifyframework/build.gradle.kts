@@ -69,8 +69,9 @@ android {
         showAll = true
         xmlReport = true
         htmlReport = false
-        baseline = file("lint-baseline.xml")
         disable.add("InvalidPackage")
+        disable.add("NewerVersionAvailable")
+        disable.add("GradleDependency")
     }
 }
 
